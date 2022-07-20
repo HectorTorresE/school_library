@@ -9,7 +9,7 @@ class Person < Nameable
     @age = age
     @parent_permission = parent_permission
     @rentals = []
-    super
+    super()
   end
 
   attr_reader :id
