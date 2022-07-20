@@ -1,4 +1,5 @@
 require './nameable'
+require './rental'
 
 class Person < Nameable
   # Constructor
@@ -7,19 +8,25 @@ class Person < Nameable
     @name = name
     @age = age
     @parent_permission = parent_permission
+    @rentals = []
     super
   end
 
   attr_reader :id
 
-  attr_accessor :name, :age
+  attr_accessor :name, :age, :rentals
 
   def can_use_services?
     @age >= 18 || parent_permission
+    correct_name
   end
 
   def correct_name
     name
+  end
+
+  def add_rental(rental)
+    @rentals.push(rental)
   end
 
   private
