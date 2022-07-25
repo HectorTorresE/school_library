@@ -43,34 +43,31 @@ class App
 
   def create_person
     person_type = create_person_menu
+    print 'Age: '
+    age = gets.chomp
+    print 'Name: '
+    name = gets.chomp
     if person_type == 2
-      age, name, specialization = teacher_info
-      add_teacher(age, name, specialization)
+      specialization = teacher_info
+      @people.push(Teacher.new(age, specialization, name))
     else
-      age, name, permission = student_info
-      add_student(age, name, permission)
+      permission = letter_input('Has parent permission? [Y/N]: ', %w[y n])
+      @people.push(Student.new(age, @classroom, name, parent_permission: permission))
     end
     puts 'Person created successfully'
   end
 
-  def student_info
-    print 'Age: '
-    age = gets.chomp
-    print 'Name: '
-    name = gets.chomp
-    print 'Has parent permission? [Y/N]: '
-    permission = gets.chomp
-    [age, name, permission.downcase == 'y']
+  def letter_input(text, valid_options)
+    loop do
+      print text
+      input = gets.chomp.downcase
+      return input if valid_options.include?(input)
+    end
   end
 
   def teacher_info
-    print 'Age: '
-    age = gets.chomp
-    print 'Name: '
-    name = gets.chomp
     print 'Specialization: '
-    specialization = gets.chomp
-    [age, name, specialization]
+    gets.chomp
   end
 
   def create_book
@@ -94,11 +91,13 @@ class App
     true
   end
 
-  def valid_date?(date)
-    y, m, d = date.split '/'
-    return true if (y.to_i > 2000) && (m.to_i > 1 || m.to_i < 12) && (d.to_i > 1 || d.to_i < 31)
-
-    false
+  def valid_date(text)
+    loop do
+      puts text
+      date = gets.chomp
+      y, m, d = date.split '/'
+      return date if (y.to_i > 2000) && (m.to_i > 1 || m.to_i < 12) && (d.to_i > 1 || d.to_i < 31)
+    end
   end
 
   def create_rental
@@ -114,14 +113,17 @@ class App
       puts 'Invalid selection'
       return
     end
-    puts 'Date (yyyy/mm/dd):'
-    date = gets.chomp
-    if valid_date?(date)
-      @rentals.push(Rental.new(date, @books[index_book], @people[index_person]))
-      puts 'Rental created successfully'
-      return
+    date = valid_date('Date (yyyy/mm/dd): ')
+    @rentals.push(Rental.new(date, @books[index_book], @people[index_person]))
+    puts 'Rental created successfully'
+  end
+
+  def valid_person(text)
+    loop do
+      print text
+      input = gets.chomp.to_i
+      return input if @people.find(-> { false }) { |per| per.id == input }
     end
-    puts 'Invalid date'
   end
 
   def list_rentals
@@ -129,8 +131,7 @@ class App
       puts 'No Rentals to show'
       return
     end
-    print 'ID of person: '
-    id = gets.chomp
+    id = valid_person('ID of person: ')
     puts 'Rentals'
     @rentals.each do |rental|
       if rental.person.id == id.to_i
@@ -158,13 +159,5 @@ class App
       print '[Student] ' if person.is_a?(Student)
       puts "Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
-  end
-
-  def add_teacher(age, name, specialization)
-    @people.push(Teacher.new(age, specialization, name))
-  end
-
-  def add_student(age, name, permission)
-    @people.push(Student.new(age, @classroom, name, parent_permission: permission))
   end
 end
