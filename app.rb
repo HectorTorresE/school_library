@@ -16,12 +16,20 @@ class App
 
   attr_reader :rentals, :people, :books
 
+  def number_input(text, valid_options)
+    loop do
+      print text
+      input = gets.chomp.to_i
+      return input if valid_options.include?(input)
+    end
+  end
+
   def select_book_from_list
     puts 'Select a book from the following list by number'
     @books.each_with_index do |book, index|
       puts "#{index + 1}) Title: \"#{book.title}\" Author: #{book.author} "
     end
-    gets.chomp.to_i
+    number_input('Option: ', (1..@books.length))
   end
 
   def select_person_from_list
@@ -30,7 +38,53 @@ class App
       print "#{index + 1}) #{person.is_a?(Teacher) ? '[Teacher]' : '[Student]'} "
       puts "Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
-    gets.chomp.to_i
+    number_input('Option: ', (1..@people.length))
+  end
+
+  def create_person_menu
+    loop do
+      print 'Do you want to create a student (1) or a teacher (2)? [Input the number]:'
+      option = gets.chomp.to_i
+      return option.to_i if option >= 1 && option < 3
+    end
+  end
+
+  def create_person
+    person_type = create_person_menu
+    print 'Age: '
+    age = gets.chomp
+    print 'Name: '
+    name = gets.chomp
+    if person_type == 2
+      specialization = teacher_info
+      @people.push(Teacher.new(age, specialization, name))
+    else
+      permission = letter_input('Has parent permission? [Y/N]: ', %w[y n])
+      @people.push(Student.new(age, @classroom, name, parent_permission: permission))
+    end
+    puts 'Person created successfully'
+  end
+
+  def letter_input(text, valid_options)
+    loop do
+      print text
+      input = gets.chomp.downcase
+      return input if valid_options.include?(input)
+    end
+  end
+
+  def teacher_info
+    print 'Specialization: '
+    gets.chomp
+  end
+
+  def create_book
+    print 'Title: '
+    title = gets.chomp
+    print 'Author: '
+    author = gets.chomp
+    @books.push(Book.new(title, author))
+    puts 'Book created successfully'
   end
 
   def can_create_rental?
@@ -45,8 +99,40 @@ class App
     true
   end
 
-  def create_rental(date, index_person, index_book)
+  def valid_date(text)
+    loop do
+      puts text
+      date = gets.chomp
+      y, m, d = date.split '/'
+      return date if (y.to_i > 2000) && (m.to_i > 1 || m.to_i < 12) && (d.to_i > 1 || d.to_i < 31)
+    end
+  end
+
+  def create_rental
+    return unless can_create_rental?
+
+    index_book = select_book_from_list - 1
+    if index_book.negative? || index_book >= books.length
+      puts 'Invalid selection'
+      return
+    end
+    index_person = select_person_from_list - 1
+    if index_person.negative? || index_person >= people.length
+      puts 'Invalid selection'
+      return
+    end
+    date = valid_date('Date (yyyy/mm/dd): ')
     @rentals.push(Rental.new(date, @books[index_book], @people[index_person]))
+    puts 'Rental created successfully'
+  end
+
+  def valid_person(text)
+    loop do
+      print text
+      input = gets.chomp.to_i
+      found = @people.find(-> {}) { |per| per.id == input }
+      return found unless found.nil?
+    end
   end
 
   def list_rentals
@@ -54,19 +140,12 @@ class App
       puts 'No Rentals to show'
       return
     end
-    print 'ID of person: '
-    id = gets.chomp
+    person = valid_person('ID of person: ')
     puts 'Rentals'
-    @rentals.each do |rental|
-      if rental.person.id == id.to_i
-        print("Date: #{rental.date} ")
-        puts("Book \"#{rental.book.title}\" by #{rental.book.author} ")
-      end
+    person.rentals.each do |rental|
+      print("Date: #{rental.date} ")
+      puts("Book \"#{rental.book.title}\" by #{rental.book.author} ")
     end
-  end
-
-  def create_book(title, author)
-    @books.push(Book.new(title, author))
   end
 
   def list_books
@@ -87,13 +166,5 @@ class App
       print '[Student] ' if person.is_a?(Student)
       puts "Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
-  end
-
-  def add_teacher(age, name, specialization)
-    @people.push(Teacher.new(age, specialization, name))
-  end
-
-  def add_student(age, name, permission)
-    @people.push(Student.new(age, @classroom, name, parent_permission: permission))
   end
 end
