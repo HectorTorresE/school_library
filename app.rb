@@ -33,6 +33,55 @@ class App
     gets.chomp.to_i
   end
 
+  def create_person_menu
+    loop do
+      print 'Do you want to create a student (1) or a teacher (2)? [Input the number]:'
+      option = gets.chomp.to_i
+      return option.to_i if option >= 1 && option < 3
+    end
+  end
+
+  def create_person
+    person_type = create_person_menu
+    if person_type == 2
+      age, name, specialization = teacher_info
+      add_teacher(age, name, specialization)
+    else
+      age, name, permission = student_info
+      add_student(age, name, permission)
+    end
+    puts 'Person created successfully'
+  end
+
+  def student_info
+    print 'Age: '
+    age = gets.chomp
+    print 'Name: '
+    name = gets.chomp
+    print 'Has parent permission? [Y/N]: '
+    permission = gets.chomp
+    [age, name, permission.downcase == 'y']
+  end
+
+  def teacher_info
+    print 'Age: '
+    age = gets.chomp
+    print 'Name: '
+    name = gets.chomp
+    print 'Specialization: '
+    specialization = gets.chomp
+    [age, name, specialization]
+  end
+
+  def create_book
+    print 'Title: '
+    title = gets.chomp
+    print 'Author: '
+    author = gets.chomp
+    @books.push(Book.new(title, author))
+    puts 'Book created successfully'
+  end
+
   def can_create_rental?
     if @books.empty?
       puts 'There are no books for rentals'
@@ -45,8 +94,34 @@ class App
     true
   end
 
-  def create_rental(date, index_person, index_book)
-    @rentals.push(Rental.new(date, @books[index_book], @people[index_person]))
+  def valid_date?(date)
+    y, m, d = date.split '/'
+    return true if (y.to_i > 2000) && (m.to_i > 1 || m.to_i < 12) && (d.to_i > 1 || d.to_i < 31)
+
+    false
+  end
+
+  def create_rental
+    return unless can_create_rental?
+
+    index_book = select_book_from_list - 1
+    if index_book.negative? || index_book >= books.length
+      puts 'Invalid selection'
+      return
+    end
+    index_person = select_person_from_list - 1
+    if index_person.negative? || index_person >= people.length
+      puts 'Invalid selection'
+      return
+    end
+    puts 'Date (yyyy/mm/dd):'
+    date = gets.chomp
+    if valid_date?(date)
+      @rentals.push(Rental.new(date, @books[index_book], @people[index_person]))
+      puts 'Rental created successfully'
+      return
+    end
+    puts 'Invalid date'
   end
 
   def list_rentals
@@ -63,10 +138,6 @@ class App
         puts("Book \"#{rental.book.title}\" by #{rental.book.author} ")
       end
     end
-  end
-
-  def create_book(title, author)
-    @books.push(Book.new(title, author))
   end
 
   def list_books
