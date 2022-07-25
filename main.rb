@@ -22,7 +22,6 @@ class Main
     end
   end
 
-
   def show_menu
     loop do
       case main_menu
@@ -44,7 +43,6 @@ class Main
       end
     end
   end
-
 
   def run
     print "\n\nWelcome to School Library App!\n"
