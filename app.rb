@@ -16,12 +16,20 @@ class App
 
   attr_reader :rentals, :people, :books
 
+  def number_input(text, valid_options)
+    loop do
+      print text
+      input = gets.chomp.to_i
+      return input if valid_options.include?(input)
+    end
+  end
+
   def select_book_from_list
     puts 'Select a book from the following list by number'
     @books.each_with_index do |book, index|
       puts "#{index + 1}) Title: \"#{book.title}\" Author: #{book.author} "
     end
-    gets.chomp.to_i
+    number_input('Option: ', (1..@books.length))
   end
 
   def select_person_from_list
@@ -30,7 +38,7 @@ class App
       print "#{index + 1}) #{person.is_a?(Teacher) ? '[Teacher]' : '[Student]'} "
       puts "Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
-    gets.chomp.to_i
+    number_input('Option: ', (1..@people.length))
   end
 
   def create_person_menu
