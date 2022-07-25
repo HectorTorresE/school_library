@@ -130,7 +130,8 @@ class App
     loop do
       print text
       input = gets.chomp.to_i
-      return input if @people.find(-> { false }) { |per| per.id == input }
+      found = @people.find(-> {}) { |per| per.id == input }
+      return found unless found.nil?
     end
   end
 
@@ -139,13 +140,11 @@ class App
       puts 'No Rentals to show'
       return
     end
-    id = valid_person('ID of person: ')
+    person = valid_person('ID of person: ')
     puts 'Rentals'
-    @rentals.each do |rental|
-      if rental.person.id == id.to_i
-        print("Date: #{rental.date} ")
-        puts("Book \"#{rental.book.title}\" by #{rental.book.author} ")
-      end
+    person.rentals.each do |rental|
+      print("Date: #{rental.date} ")
+      puts("Book \"#{rental.book.title}\" by #{rental.book.author} ")
     end
   end
 
