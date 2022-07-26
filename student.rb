@@ -26,7 +26,7 @@ class Student < Person
   end
 
   def self.json_create(object)
-    age, classroom, name, id, parent_permision = object['data']
-    new(*object['data'])
+    age, classroom, name, id, parent_permission = object['data']
+    new(age, classroom, name, id, parent_permission: parent_permission)
   end
 end
