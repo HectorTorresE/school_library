@@ -110,12 +110,12 @@ class App
     return unless can_create_rental?
 
     index_book = select_book_from_list - 1
-    if index_book.negative? || index_book >= books.length
+    if index_book.negative? || index_book >= library.books.length
       puts 'Invalid selection'
       return
     end
     index_person = select_person_from_list - 1
-    if index_person.negative? || index_person >= people.length
+    if index_person.negative? || index_person >= library.people.length
       puts 'Invalid selection'
       return
     end
@@ -128,8 +128,8 @@ class App
     loop do
       print text
       input = gets.chomp.to_i
-      found = library.people.find(-> {}) { |per| per.id == input }
-      return found unless found.nil?
+      found = library.rentals.find(-> {}) { |rental| rental.person.id == input }
+      return input unless found.nil?
     end
   end
 
@@ -138,11 +138,12 @@ class App
       puts 'No Rentals to show'
       return
     end
-    person = valid_person('ID of person: ')
+    person_id = valid_person('ID of person: ')
     puts 'Rentals'
-    person.rentals.each do |rental|
-      print("Date: #{rental.date} ")
-      puts("Book \"#{rental.book.title}\" by #{rental.book.author} ")
+    library.rentals.each do |rental|
+      if rental.person.id == person_id
+        puts("Date: #{rental.date} - Book \"#{rental.book.title}\" by #{rental.book.author} ")
+      end
     end
   end
 
