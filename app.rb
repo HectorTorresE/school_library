@@ -1,20 +1,18 @@
-require './person'
-require './student'
-require './teacher'
-require './book'
-require './capitalize_decorator'
-require './trimmer_decorator'
-require './classroom'
+require_relative './person'
+require_relative './student'
+require_relative './teacher'
+require_relative './book'
+require_relative './capitalize_decorator'
+require_relative './trimmer_decorator'
+require_relative './library'
 
 class App
-  def initialize
-    @people = []
-    @books = []
-    @rentals = []
-    @classroom = Classroom.new('101')
-  end
+  attr_reader :library
 
-  attr_reader :rentals, :people, :books
+  def initialize
+    @library = Library.new
+    library.load_data
+  end
 
   def number_input(text, valid_options)
     loop do
@@ -26,19 +24,19 @@ class App
 
   def select_book_from_list
     puts 'Select a book from the following list by number'
-    @books.each_with_index do |book, index|
+    library.books.each_with_index do |book, index|
       puts "#{index + 1}) Title: \"#{book.title}\" Author: #{book.author} "
     end
-    number_input('Option: ', (1..@books.length))
+    number_input('Option: ', (1..library.books.length))
   end
 
   def select_person_from_list
     puts 'Select a person from the following list by number (not id)'
-    @people.each_with_index do |person, index|
+    library.people.each_with_index do |person, index|
       print "#{index + 1}) #{person.is_a?(Teacher) ? '[Teacher]' : '[Student]'} "
       puts "Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
-    number_input('Option: ', (1..@people.length))
+    number_input('Option: ', (1..library.people.length))
   end
 
   def create_person_menu
@@ -57,10 +55,10 @@ class App
     name = gets.chomp
     if person_type == 2
       specialization = teacher_info
-      @people.push(Teacher.new(age, specialization, name))
+      library.people.push(Teacher.new(age, specialization, name))
     else
-      permission = letter_input('Has parent permission? [Y/N]: ', %w[y n])
-      @people.push(Student.new(age, @classroom, name, parent_permission: permission))
+      permission = letter_input('Has parent permission? [Y/N]: ', %w[y n]) == 'y'
+      library.people.push(Student.new(age, library.classroom, name, parent_permission: permission))
     end
     puts 'Person created successfully'
   end
@@ -83,16 +81,16 @@ class App
     title = gets.chomp
     print 'Author: '
     author = gets.chomp
-    @books.push(Book.new(title, author))
+    library.books.push(Book.new(title, author))
     puts 'Book created successfully'
   end
 
   def can_create_rental?
-    if @books.empty?
+    if library.books.empty?
       puts 'There are no books for rentals'
       return false
     end
-    if @people.empty?
+    if library.people.empty?
       puts 'There are no people for rentals'
       return false
     end
@@ -122,7 +120,7 @@ class App
       return
     end
     date = valid_date('Date (yyyy/mm/dd): ')
-    @rentals.push(Rental.new(date, @books[index_book], @people[index_person]))
+    library.rentals.push(Rental.new(date, library.books[index_book], library.people[index_person]))
     puts 'Rental created successfully'
   end
 
@@ -130,13 +128,13 @@ class App
     loop do
       print text
       input = gets.chomp.to_i
-      found = @people.find(-> {}) { |per| per.id == input }
+      found = library.people.find(-> {}) { |per| per.id == input }
       return found unless found.nil?
     end
   end
 
   def list_rentals
-    if @rentals.empty?
+    if library.rentals.empty?
       puts 'No Rentals to show'
       return
     end
@@ -149,22 +147,26 @@ class App
   end
 
   def list_books
-    if @books.empty?
+    if library.books.empty?
       puts 'There are no books to show'
       return
     end
-    @books.each { |book| puts "Title: \"#{book.title}\", Author: #{book.author}" }
+    library.books.each { |book| puts "Title: \"#{book.title}\", Author: #{book.author}" }
   end
 
   def list_people
-    if @people.empty?
+    if library.people.empty?
       puts 'There are no people to show'
       return
     end
-    @people.each do |person|
+    library.people.each do |person|
       print '[Teacher] ' if person.is_a?(Teacher)
       print '[Student] ' if person.is_a?(Student)
       puts "Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
     end
+  end
+
+  def save_data
+    library.save_data
   end
 end
