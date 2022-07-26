@@ -39,6 +39,7 @@ class Main
         app.list_rentals
       else
         puts 'Thanks for using this app!'
+        app.save_data
         return
       end
     end
