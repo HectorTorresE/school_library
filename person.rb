@@ -4,7 +4,7 @@ require_relative './rental'
 
 class Person < Nameable
   # Constructor
-  def initialize(age, name = 'Unknown', id = Random.rand(1..1000), parent_permission: true )
+  def initialize(age, name = 'Unknown', id = Random.rand(1..1000), parent_permission: true)
     @id = id
     @name = name
     @age = age
