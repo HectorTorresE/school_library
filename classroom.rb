@@ -24,5 +24,4 @@ class Classroom
   def self.json_create(object)
     new(*object['data'])
   end
-
 end
