@@ -30,6 +30,18 @@ class Person < Nameable
     @rentals.push(rental)
   end
 
+  def to_json(*args)
+    {
+      JSON.create_id => self.class.name,
+      'data' => [@age, @name, @id, @parent_permission]
+    }.to_json(*args)
+  end
+
+  def self.json_create(object)
+    age, name, id, parent_permission = object['data']
+    new(age, name, id, parent_permission: parent_permission)
+  end
+
   private
 
   def of_age?
