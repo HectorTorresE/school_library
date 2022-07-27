@@ -50,10 +50,6 @@ def classroom_json
   "{\"json_class\":\"Classroom\",\"data\":[\"#{label}\"]}"
 end
 
-def rental_json
-  "{\"json_class\":\"Rental\",\"data\":[\"#{date}\",{\"json_class\":\"Book\",\"data\":[\"#{title}\",\"#{author}\"]},{\"json_class\":\"Person\",\"data\":[#{age},\"#{name}\",#{id},true]}]}"
-end
-
 def create_person
   Person.new(age, name, id)
 end
@@ -69,6 +65,11 @@ end
 def student_json
   "{\"json_class\":\"Student\",\"data\":[#{age},{\"json_class\":\"Classroom\",\
 \"data\":[\"101\"]},\"#{name}\",#{id},true]}"
+end
+
+def rental_json
+  "{\"json_class\":\"Rental\",\"data\":[\"#{date}\",{\"json_class\":\"Book\",\"data\":[\"#{title}\",\"#{author}\"]},{\"\
+json_class\":\"Person\",\"data\":[#{age},\"#{name}\",#{id},true]}]}"
 end
 
 def create_teacher
